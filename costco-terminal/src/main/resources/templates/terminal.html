@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WMSPROD</title>
+  <link rel="stylesheet" th:href="@{/css/terminal.css}">
+</head>
+<body>
+
+<!--
+  The screen body is injected as one pre-rendered string. It is built in Java rather than
+  assembled from Thymeleaf fragments because a template engine will pretty-print its output,
+  and a single injected newline shifts every column of a fixed 80-character grid.
+-->
+<div class="crt">
+  <form class="frame" id="screenForm" method="post" th:action="@{/wms}"
+        autocomplete="off" spellcheck="false">
+
+    <input type="hidden" name="__aid" id="aidKey" value="ENTER">
+
+    <div class="screen" id="screen">
+      <div class="text" th:utext="${screenHtml}"></div>
+
+      <input th:each="field : ${fields}"
+             type="text"
+             class="fld"
+             th:classappend="${field.cssClass}"
+             th:name="${field.name}"
+             th:value="${field.value}"
+             th:maxlength="${field.length}"
+             th:style="'left:' + ${field.col - 1} + 'ch; top:' + ${field.topPx} + 'px; width:' + ${field.length} + 'ch;'">
+
+      <div class="blockcursor" id="blockCursor"></div>
+    </div>
+
+    <!-- Operator Information Area: sits below the 24 rows, as on real hardware. -->
+    <div class="oia">
+      <span class="oia-left">SA</span>
+      <span class="oia-lock" id="oiaLock"></span>
+      <span class="oia-right" id="oiaPos">01/001</span>
+    </div>
+  </form>
+</div>
+
+<script th:inline="javascript">
+  window.WMS = {
+    cursorField: /*[[${cursorField}]]*/ '',
+    alarm: /*[[${alarm}]]*/ false
+  };
+</script>
+<script th:src="@{/js/terminal.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,196 @@
+/* -----------------------------------------------------------------------------------------
+   5250 display station.
+
+   The grid is 80 columns by 24 rows and must stay exact, so every horizontal measurement is
+   in `ch` units and every vertical one is a multiple of the 16px cell height. Nothing here
+   may use a proportional font, a transition, or a percentage width -- a real terminal had
+   none of those, and any of them will break the column alignment.
+   ----------------------------------------------------------------------------------------- */
+
+:root {
+    /* P1 phosphor. The background is not pure black because CRT glass never was. */
+    --scr-bg: #0B0F0B;
+
+    /* The seven colours a 5250 colour terminal could produce. */
+    --c-grn: #33FF33;
+    --c-wht: #D8FFD8;
+    --c-red: #FF4136;
+    --c-trq: #00E5E5;
+    --c-ylw: #FFD731;
+    --c-pnk: #FF6EC7;
+    --c-blu: #6FB4FF;
+
+    --cell-h: 16px;
+    --rows: 24;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #050705;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* No mouse affordances anywhere: no hover states, no pointer, no text selection. */
+    cursor: default;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.crt {
+    position: relative;
+    padding: 28px 32px 20px 32px;
+    background: var(--scr-bg);
+    border-radius: 10px;
+    box-shadow: 0 0 4px rgba(51, 255, 51, 0.35),
+                0 0 90px rgba(51, 255, 51, 0.10) inset,
+                0 18px 60px rgba(0, 0, 0, 0.9);
+}
+
+/* Scanlines and vignette. Kept deliberately faint -- heavy bloom reads as a costume. */
+.crt::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: 10px;
+    background:
+        repeating-linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.22) 0, rgba(0, 0, 0, 0.22) 1px,
+            transparent 1px, transparent 2px),
+        radial-gradient(ellipse at center,
+            rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.45) 100%);
+}
+
+.screen {
+    position: relative;
+    width: 80ch;
+    height: calc(var(--rows) * var(--cell-h));
+
+    font-family: "SF Mono", "Menlo", "DejaVu Sans Mono", "Consolas", "Courier New", monospace;
+    font-size: 15px;
+    line-height: var(--cell-h);
+    letter-spacing: 0;
+    font-variant-ligatures: none;
+    font-kerning: none;
+
+    /* Crisp, unantialiased glyph edges, the way a phosphor tube drew them. */
+    -webkit-font-smoothing: none;
+    text-rendering: geometricPrecision;
+
+    color: var(--c-grn);
+    text-shadow: 0 0 3px rgba(51, 255, 51, 0.45);
+}
+
+/* One row of the character buffer. `pre` is what preserves the padding spaces. */
+.r {
+    height: var(--cell-h);
+    white-space: pre;
+}
+
+.c-grn { color: var(--c-grn); }
+.c-wht { color: var(--c-wht); }
+.c-red { color: var(--c-red); }
+.c-trq { color: var(--c-trq); }
+.c-ylw { color: var(--c-ylw); }
+.c-pnk { color: var(--c-pnk); }
+.c-blu { color: var(--c-blu); }
+
+/* Reverse image: how a field in error is marked, via DSPATR(RI). */
+.rv {
+    background: currentColor;
+    color: var(--scr-bg);
+    text-shadow: none;
+}
+
+/* -----------------------------------------------------------------------------------------
+   Input fields.
+
+   Positioned absolutely on the grid rather than flowed, so they land exactly on their DDS
+   coordinates. The underscore run is drawn as a repeating 1px rule at cell width, which
+   gives one underscore per character position and keeps it visible under typed text.
+   ----------------------------------------------------------------------------------------- */
+.fld {
+    position: absolute;
+    height: var(--cell-h);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--c-wht);
+    text-transform: uppercase;
+    text-shadow: inherit;
+
+    /* The real caret is hidden; a block cursor is drawn over the top instead. */
+    caret-color: transparent;
+
+    background-image: linear-gradient(to top, currentColor 1px, transparent 1px);
+    background-size: 1ch var(--cell-h);
+    background-repeat: repeat-x;
+}
+
+.fld::selection {
+    background: var(--c-grn);
+    color: var(--scr-bg);
+}
+
+/* The block cursor: full cell, hard edges, 2Hz blink. */
+.blockcursor {
+    position: absolute;
+    width: 1ch;
+    height: var(--cell-h);
+    background: #8CFF8C;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    display: none;
+}
+
+.blockcursor.on {
+    display: block;
+    animation: blink 1s steps(1, end) infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+/* Keyboard locked: the cursor stops blinking and sits solid while the host is working. */
+.locked .blockcursor.on {
+    animation: none;
+    opacity: 1;
+}
+
+/* -----------------------------------------------------------------------------------------
+   Operator Information Area -- the status line below the 24 rows.
+   ----------------------------------------------------------------------------------------- */
+.oia {
+    position: relative;
+    width: 80ch;
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(51, 255, 51, 0.35);
+
+    font-family: "SF Mono", "Menlo", "DejaVu Sans Mono", "Consolas", "Courier New", monospace;
+    font-size: 15px;
+    line-height: var(--cell-h);
+    color: rgba(51, 255, 51, 0.75);
+    display: flex;
+    justify-content: space-between;
+}
+
+.oia-lock {
+    color: var(--c-wht);
+    letter-spacing: 0.5ch;
+}

@@ -23,6 +23,8 @@
 
   <modules>
     <module>costco-core</module>
+    <module>costco-terminal</module>
+    <module>costco-api</module>
   </modules>
 
   <properties>
@@ -31,7 +33,14 @@
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <springfox.version>3.0.0</springfox.version>
-    <jacoco.version>0.8.8</jacoco.version>
+    <!--
+      JaCoCo is kept current deliberately. Everything else here is period-accurate, but the
+      coverage agent instruments the JDK's own classes, so an older build of it refuses to
+      run on a newer runtime ("unsupported class file major version"). Pinning it back would
+      make the baseline build fail on whichever JDK a machine happens to default to, which
+      is a measurement problem rather than an interesting one.
+    -->
+    <jacoco.version>0.8.13</jacoco.version>
   </properties>
 
   <dependencyManagement>

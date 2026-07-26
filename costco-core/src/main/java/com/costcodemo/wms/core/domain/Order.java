@@ -20,15 +20,18 @@ public class Order {
     private final String warehouseCode;
     private final OrderStatus status;
     private final LocalDate orderDate;
+    private final String sourceCode;
     private final List<OrderLine> lines;
 
     public Order(String orderNumber, String memberNumber, String warehouseCode,
-                 OrderStatus status, LocalDate orderDate, List<OrderLine> lines) {
+                 OrderStatus status, LocalDate orderDate, String sourceCode,
+                 List<OrderLine> lines) {
         this.orderNumber = orderNumber;
         this.memberNumber = memberNumber;
         this.warehouseCode = warehouseCode;
         this.status = status;
         this.orderDate = orderDate;
+        this.sourceCode = sourceCode;
         this.lines = lines == null ? new ArrayList<>() : new ArrayList<>(lines);
     }
 
@@ -50,6 +53,15 @@ public class Order {
 
     public LocalDate getOrderDate() {
         return orderDate;
+    }
+
+    /**
+     * The channel that wrote the order: WEB for the REST tier, TRM for an order keyed at a
+     * terminal. Both land in the same ORDHDR file, and the code is the only way to tell
+     * afterwards which one it came from.
+     */
+    public String getSourceCode() {
+        return sourceCode;
     }
 
     public List<OrderLine> getLines() {

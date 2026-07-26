@@ -106,6 +106,7 @@ public class LegacyRecordTranslator {
                 clean(header.getWarehouseCode()),
                 OrderStatus.fromLegacyCode(header.getStatusCode()),
                 LegacyDateCodec.toLocalDate(header.getOrderDate()),
+                clean(header.getSourceCode()),
                 lines);
     }
 
