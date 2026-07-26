@@ -67,8 +67,21 @@ if [ -n "${UNTRACKED}" ]; then
 fi
 
 if [ "${FORCE}" -ne 1 ]; then
-    printf "Proceed? [y/N] "
-    read -r reply </dev/tty
+    # Prefer the controlling terminal so the prompt still works when stdin is a pipe, but
+    # fall back to stdin, and refuse outright rather than resetting unattended by accident.
+    reply=""
+    if [ -r /dev/tty ] && { : >/dev/tty; } 2>/dev/null; then
+        printf "Proceed? [y/N] "
+        read -r reply </dev/tty
+    elif [ -t 0 ]; then
+        printf "Proceed? [y/N] "
+        read -r reply
+    else
+        echo "reset-demo: no terminal available to confirm on." >&2
+        echo "            Re-run with --force to reset without prompting." >&2
+        exit 1
+    fi
+
     case "${reply}" in
         [yY]|[yY][eE][sS]) ;;
         *) echo "Aborted.  Nothing was changed."; exit 1 ;;
