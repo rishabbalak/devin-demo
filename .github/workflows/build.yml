@@ -1,0 +1,54 @@
+name: build
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # The baseline is a Spring Boot 2.7 application. It is built on both 17 and 21 so that
+    # a framework upgrade can be verified against the runtime it is actually headed for.
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ["17", "21"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Build and test
+        run: ./mvnw --batch-mode --no-transfer-progress clean verify
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          echo "### JaCoCo coverage" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Module | Instruction coverage |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          for csv in */target/site/jacoco/jacoco.csv; do
+            [ -f "$csv" ] || continue
+            module="${csv%%/*}"
+            awk -F, -v m="$module" 'NR>1{miss+=$4;cov+=$5}
+              END{ if (miss+cov>0) printf "| %s | %.1f%% (%d/%d) |\n", m, 100*cov/(miss+cov), cov, miss+cov }' \
+              "$csv" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-java${{ matrix.java }}
+          path: "*/target/site/jacoco/"
+          if-no-files-found: ignore

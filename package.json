@@ -1,0 +1,14 @@
+{
+  "name": "costco-wms-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Convenience wrappers around the Maven build and the demo reset. The application itself is Java; npm is here only so the demo commands are one keystroke.",
+  "scripts": {
+    "demo:reset": "./scripts/reset-demo.sh",
+    "demo:reset:force": "./scripts/reset-demo.sh --force",
+    "build": "./mvnw clean package",
+    "verify": "./mvnw clean verify",
+    "start": "java -jar costco-api/target/costco-api-1.0.0-SNAPSHOT.jar",
+    "coverage": "./mvnw clean verify && echo 'Reports: <module>/target/site/jacoco/index.html'"
+  }
+}

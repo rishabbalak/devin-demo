@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "costco-wms",
-      "runtimeExecutable": "./mvnw",
-      "runtimeArgs": ["-pl", "costco-api", "-am", "-q", "spring-boot:run"],
+      "runtimeExecutable": "java",
+      "runtimeArgs": ["-jar", "costco-api/target/costco-api-1.0.0-SNAPSHOT.jar"],
       "port": 8080
     }
   ]
