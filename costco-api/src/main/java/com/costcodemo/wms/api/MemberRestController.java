@@ -14,13 +14,13 @@ import com.costcodemo.wms.api.dto.MemberResponse;
 import com.costcodemo.wms.core.domain.MembershipTier;
 import com.costcodemo.wms.core.service.MemberService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Membership endpoints, reading and writing MBRMAST through the core.
  */
-@Api(tags = "Members")
+@Tag(name = "Members")
 @RestController
 @RequestMapping("/api/members")
 public class MemberRestController {
@@ -33,7 +33,7 @@ public class MemberRestController {
         this.mapper = mapper;
     }
 
-    @ApiOperation("List members, optionally filtered by tier or name")
+    @Operation(summary = "List members, optionally filtered by tier or name")
     @GetMapping
     public List<MemberResponse> list(@RequestParam(required = false) String tier,
                                      @RequestParam(required = false) String name) {
@@ -47,13 +47,13 @@ public class MemberRestController {
         return mapper.toMemberResponses(memberService.findAll());
     }
 
-    @ApiOperation("Retrieve a single member by member number")
+    @Operation(summary = "Retrieve a single member by member number")
     @GetMapping("/{memberNumber}")
     public MemberResponse get(@PathVariable String memberNumber) {
         return mapper.toResponse(memberService.requireByNumber(memberNumber));
     }
 
-    @ApiOperation("Renew a membership for twelve months")
+    @Operation(summary = "Renew a membership for twelve months")
     @PostMapping("/{memberNumber}/renew")
     public MemberResponse renew(@PathVariable String memberNumber) {
         return mapper.toResponse(memberService.renew(memberNumber, LocalDate.now()));

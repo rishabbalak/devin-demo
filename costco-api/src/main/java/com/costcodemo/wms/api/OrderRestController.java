@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,8 +22,8 @@ import com.costcodemo.wms.api.dto.PlaceOrderRequest;
 import com.costcodemo.wms.core.service.OrderLineRequest;
 import com.costcodemo.wms.core.service.OrderService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Order endpoints.
@@ -32,7 +32,7 @@ import io.swagger.annotations.ApiOperation;
  * the terminal's order screens read. Placing an order through this endpoint and then
  * refreshing WMS310 shows it at the top of the subfile.
  */
-@Api(tags = "Orders")
+@Tag(name = "Orders")
 @RestController
 @RequestMapping("/api/orders")
 public class OrderRestController {
@@ -45,7 +45,7 @@ public class OrderRestController {
         this.mapper = mapper;
     }
 
-    @ApiOperation("List orders, optionally filtered by member or warehouse")
+    @Operation(summary = "List orders, optionally filtered by member or warehouse")
     @GetMapping
     public List<OrderResponse> list(@RequestParam(required = false) String member,
                                     @RequestParam(required = false) String warehouse) {
@@ -58,13 +58,13 @@ public class OrderRestController {
         return mapper.toOrderResponses(orderService.findAll());
     }
 
-    @ApiOperation("Retrieve a single order with its lines")
+    @Operation(summary = "Retrieve a single order with its lines")
     @GetMapping("/{orderNumber}")
     public OrderResponse get(@PathVariable String orderNumber) {
         return mapper.toResponse(orderService.requireByNumber(orderNumber));
     }
 
-    @ApiOperation("Place an order, writing it to the core and allocating stock")
+    @Operation(summary = "Place an order, writing it to the core and allocating stock")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse place(@Valid @RequestBody PlaceOrderRequest request) {
