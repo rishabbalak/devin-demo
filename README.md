@@ -64,7 +64,7 @@ flowchart TB
 
     subgraph tier ["Digital tier — costco-api"]
         REST["REST controllers<br/>/api/members · /api/catalog · /api/orders"]
-        SWAG["Springfox OpenAPI<br/>/swagger-ui"]
+        SWAG["springdoc OpenAPI<br/>/swagger-ui"]
     end
 
     subgraph term ["Terminal tier — costco-terminal"]
@@ -100,7 +100,7 @@ a view onto a copy. Both tiers go through the same services, and the same
 |---|---|---|
 | `costco-core` | Domain models, JPA entities over the DB2/400-style files, repositories, services, seed data | no |
 | `costco-terminal` | 5250 presentation: 24×80 buffer, renderer, screen handlers, session/screen stack | no |
-| `costco-api` | REST controllers, Springfox OpenAPI, global error handling, the Spring Boot application | **yes** |
+| `costco-api` | REST controllers, springdoc OpenAPI, global error handling, the Spring Boot application | **yes** |
 
 ### The legacy schema
 
@@ -125,7 +125,7 @@ into a numeric field. `0` is the legacy null. `INVBAL` and `ORDDTL` are keyed by
 
 ## Running it
 
-Requires a JDK (17 or 21) and nothing else. No Docker, no database to install — H2 runs
+Requires a JDK 21 and nothing else. No Docker, no database to install — H2 runs
 in memory and seeds itself.
 
 ```bash
@@ -180,11 +180,6 @@ Everything below is real, currently present, and deliberately so.
 
 | Debt | Detail |
 |---|---|
-| **Spring Boot 2.7.18** | Final 2.7.x release; out of OSS support |
-| **`javax.*` everywhere** | `javax.persistence`, `javax.validation`, `javax.servlet` — the Jakarta namespace migration |
-| **Springfox 3.0.0** | The project's only release, unmaintained, **no Spring Boot 3 support at all** — a hard blocker, not an incidental dependency |
-| **`ant_path_matcher` workaround** | `application.properties` forces the pre-Boot-2.6 path matching strategy; without it Springfox fails at startup |
-| **`io.swagger.annotations`** | `@Api` / `@ApiOperation` on every controller, all needing conversion to `@Tag` / `@Operation` |
 | **Coverage at 5.0%** | Measured, see below |
 
 ### Test coverage baseline
