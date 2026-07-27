@@ -98,9 +98,24 @@ class LegacyDateCodecTest {
         assertEquals("01/01/00", LegacyDateCodec.formatForDisplay(1000101));
     }
 
+    /**
+     * The 5250 date field is six characters plus separators, so two dates a century apart
+     * render identically. This is a property of the fixed-width screen rather than a defect:
+     * the century survives in the stored CYYMMDD value and only the display is lossy.
+     */
+    @Test
+    void formatForDisplayCannotDistinguishDatesACenturyApart() {
+        assertEquals("12/31/99", LegacyDateCodec.formatForDisplay(991231));
+        assertEquals("12/31/99", LegacyDateCodec.formatForDisplay(1991231));
+        assertEquals(LocalDate.of(1999, 12, 31), LegacyDateCodec.toLocalDate(991231));
+        assertEquals(LocalDate.of(2099, 12, 31), LegacyDateCodec.toLocalDate(1991231));
+    }
+
     @Test
     void formatForDisplayBlanksTheLegacyNull() {
         assertEquals("  /  /  ", LegacyDateCodec.formatForDisplay(0));
         assertEquals("  /  /  ", LegacyDateCodec.formatForDisplay(null));
+        assertEquals(8, LegacyDateCodec.formatForDisplay(null).length(),
+                "the placeholder must occupy the full width of the screen field");
     }
 }
