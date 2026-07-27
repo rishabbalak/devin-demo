@@ -35,14 +35,9 @@
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
-    <!--
-      Springfox 3.0.0 is the last release this project ever made and it has no Spring Boot 3
-      support. It also needs spring.mvc.pathmatch.matching-strategy set back to
-      ant_path_matcher to start under Boot 2.6+, which is configured in application.properties.
-    -->
     <dependency>
-      <groupId>io.springfox</groupId>
-      <artifactId>springfox-boot-starter</artifactId>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
     </dependency>
   </dependencies>
 
