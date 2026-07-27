@@ -10,12 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # The baseline is a Spring Boot 2.7 application. It is built on both 17 and 21 so that
-    # a framework upgrade can be verified against the runtime it is actually headed for.
+    # Spring Boot 3.5 on Java 21.
     strategy:
       fail-fast: false
       matrix:
-        java: ["17", "21"]
+        java: ["21"]
 
     steps:
       - uses: actions/checkout@v4

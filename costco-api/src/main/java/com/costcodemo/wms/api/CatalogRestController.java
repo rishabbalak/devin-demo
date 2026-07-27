@@ -11,13 +11,13 @@ import com.costcodemo.wms.api.dto.InventoryResponse;
 import com.costcodemo.wms.api.dto.ItemResponse;
 import com.costcodemo.wms.core.service.InventoryService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Catalog and inventory availability, read from ITEMMAST and INVBAL.
  */
-@Api(tags = "Catalog")
+@Tag(name = "Catalog")
 @RestController
 public class CatalogRestController {
 
@@ -29,25 +29,25 @@ public class CatalogRestController {
         this.mapper = mapper;
     }
 
-    @ApiOperation("List catalog items, optionally filtered by description")
+    @Operation(summary = "List catalog items, optionally filtered by description")
     @GetMapping("/api/catalog/items")
     public List<ItemResponse> items(@RequestParam(required = false) String search) {
         return mapper.toItemResponses(inventoryService.searchItems(search));
     }
 
-    @ApiOperation("Retrieve a single item by item number")
+    @Operation(summary = "Retrieve a single item by item number")
     @GetMapping("/api/catalog/items/{itemNumber}")
     public ItemResponse item(@PathVariable String itemNumber) {
         return mapper.toResponse(inventoryService.requireItem(itemNumber));
     }
 
-    @ApiOperation("List warehouses")
+    @Operation(summary = "List warehouses")
     @GetMapping("/api/catalog/warehouses")
     public List<?> warehouses() {
         return inventoryService.findAllWarehouses();
     }
 
-    @ApiOperation("Inventory balances for a warehouse, optionally narrowed to one item")
+    @Operation(summary = "Inventory balances for a warehouse, optionally narrowed to one item")
     @GetMapping("/api/inventory")
     public List<InventoryResponse> inventory(@RequestParam String warehouse,
                                              @RequestParam(required = false) String item) {
@@ -58,7 +58,7 @@ public class CatalogRestController {
         return mapper.toInventoryResponses(inventoryService.findBalancesByWarehouse(warehouse));
     }
 
-    @ApiOperation("Total promisable quantity for an item in a warehouse")
+    @Operation(summary = "Total promisable quantity for an item in a warehouse")
     @GetMapping("/api/inventory/available")
     public int available(@RequestParam String warehouse, @RequestParam String item) {
         return inventoryService.availableQuantity(warehouse, item);
